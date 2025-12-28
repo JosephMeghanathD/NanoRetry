@@ -25,7 +25,7 @@ jobs:
           cache: maven
 
       - name: Build Maven Site
-        run: mvn clean javadoc:javadoc -f pom-ci.xml
+        run: mvn clean verify site -f pom-ci.xml
 
       - name: Add .nojekyll file
         run: touch target/site/.nojekyll

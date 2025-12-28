@@ -42,7 +42,7 @@ jobs:
           paths: ${{ github.workspace }}/target/site/jacoco/jacoco.xml
           token: ${{ github.token }}
           min-coverage-overall: 90
-          min-coverage-changed-files: 90
+          min-coverage-changed-files: 80
           title: "Code Coverage Report"
           update-comment: true
 

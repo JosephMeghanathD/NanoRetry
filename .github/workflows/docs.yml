@@ -25,13 +25,15 @@ jobs:
           cache: maven
 
       - name: Build Maven Site
-        run: |
-          mvn clean javadoc:javadoc -f pom-ci.xml
+        run: mvn clean javadoc:javadoc -f pom-ci.xml
+
+      - name: Add .nojekyll file
+        run: touch target/site/.nojekyll
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
-          publish_dir: target/site/apidocs
+          publish_dir: target/site
           force_orphan: true

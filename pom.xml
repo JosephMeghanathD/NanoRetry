@@ -20,6 +20,10 @@
         <maven.jxr.version>3.3.2</maven.jxr.version>
     </properties>
 
+    <name>NanoRetry</name>
+    <description>A lightweight, zero-dependency Java library for retries and timeouts, optimized for Virtual Threads.</description>
+    <url>https://github.com/JosephMeghanathD/NanoRetry</url>
+
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>

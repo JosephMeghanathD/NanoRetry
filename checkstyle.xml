@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+        "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+        "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<module name="Checker">
+    <property name="charset" value="UTF-8"/>
+    <property name="severity" value="error"/>
+    <property name="fileExtensions" value="java, properties, xml"/>
+
+    <module name="TreeWalker">
+        <!-- 1. CLASS DESIGN RULES (Will catch your public constructor) -->
+        <module name="HideUtilityClassConstructor"/>
+        <module name="FinalClass"/>
+        <module name="VisibilityModifier">
+            <property name="protectedAllowed" value="true"/>
+        </module>
+
+        <!-- 2. JAVADOC RULES (Will catch your missing method/constructor docs) -->
+        <module name="JavadocMethod"/>
+        <module name="JavadocType"/>
+        <module name="MissingJavadocMethod">
+            <property name="scope" value="public"/>
+        </module>
+
+        <!-- 3. CODING RULES (Will catch your non-final parameters) -->
+        <module name="FinalParameters"/>
+        <module name="AvoidStarImport"/>
+        <module name="OneStatementPerLine"/>
+
+        <!-- 4. FORMATTING (Your existing rules) -->
+        <module name="Indentation">
+            <property name="basicOffset" value="4"/>
+            <property name="braceAdjustment" value="0"/>
+            <property name="caseIndent" value="4"/>
+            <property name="throwsIndent" value="8"/>
+            <property name="arrayInitIndent" value="4"/>
+            <property name="lineWrappingIndentation" value="8"/>
+        </module>
+        <module name="LeftCurly"/>
+        <module name="RightCurly"/>
+        <module name="WhitespaceAround"/>
+        <module name="PackageName">
+            <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>
+        </module>
+    </module>
+</module>

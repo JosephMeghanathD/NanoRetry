@@ -1,0 +1,56 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write        # CRITICAL for Test Summary
+      pull-requests: write # CRITICAL for JaCoCo reports
+      actions: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build and Test with Coverage
+        # Using -f pom-ci.xml
+        run: mvn -f pom-ci.xml clean verify site
+
+      - name: Publish Test Summary
+        uses: test-summary/action@v2
+        if: always()
+        with:
+          paths: "target/surefire-reports/TEST-*.xml"
+
+      - name: Publish JaCoCo Summary
+        uses: madrapps/jacoco-report@v1.7.1
+        if: always()
+        with:
+          paths: ${{ github.workspace }}/target/site/jacoco/jacoco.xml
+          token: ${{ github.token }}
+          min-coverage-overall: 90
+          min-coverage-changed-files: 90
+          title: "Code Coverage Report"
+          update-comment: true
+
+      - name: Upload Full Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-reports
+          path: |
+            target/site/surefire-report.html
+            target/site/jacoco/

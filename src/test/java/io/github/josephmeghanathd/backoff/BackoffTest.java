@@ -61,4 +61,59 @@ class BackoffTest {
                 Backoff.random(Duration.ofMillis(200), Duration.ofMillis(100))
         );
     }
+
+    @Test
+    @DisplayName("exponentialWithJitter: Verify bounds [0, exponentialMax]")
+    void testJitterBounds() {
+        Duration initial = Duration.ofMillis(100);
+        double multiplier = 2.0;
+        Backoff jitterBackoff = Backoff.exponentialWithJitter(initial, multiplier);
+
+        // Attempt 1: expDelay = 100 * 2^0 = 100. Jitter range [0, 100]
+        // Attempt 3: expDelay = 100 * 2^2 = 400. Jitter range [0, 400]
+
+        for (int i = 0; i < 1000; i++) {
+            long delay1 = jitterBackoff.nextDelay(1).toMillis();
+            long delay3 = jitterBackoff.nextDelay(3).toMillis();
+
+            assertTrue(delay1 >= 0 && delay1 <= 100, "Attempt 1 out of bounds: " + delay1);
+            assertTrue(delay3 >= 0 && delay3 <= 400, "Attempt 3 out of bounds: " + delay3);
+        }
+    }
+
+    @Test
+    @DisplayName("exponentialWithJitter: Verify entropy (not returning constant values)")
+    void testJitterEntropy() {
+        Backoff jitterBackoff = Backoff.exponentialWithJitter(Duration.ofMillis(1000), 2.0);
+
+        long first = jitterBackoff.nextDelay(5).toMillis();
+        boolean foundDifferent = false;
+
+        // Statistically, over 100 tries with a large range [0, 16000],
+        // we should definitely see a different number.
+        for (int i = 0; i < 100; i++) {
+            if (jitterBackoff.nextDelay(5).toMillis() != first) {
+                foundDifferent = true;
+                break;
+            }
+        }
+        assertTrue(foundDifferent, "Jitter should produce varying values");
+    }
+
+    @Test
+    @DisplayName("exponentialWithJitter: Handle very small initial delay")
+    void testJitterSmallInitial() {
+        Backoff jitterBackoff = Backoff.exponentialWithJitter(Duration.ofMillis(1), 2.0);
+        // expDelay = 1. Range [0, 1]. Should not throw exception.
+        long delay = jitterBackoff.nextDelay(1).toMillis();
+        assertTrue(delay == 0 || delay == 1);
+    }
+
+    @Test
+    @DisplayName("exponentialWithJitter: Handle zero initial delay")
+    void testJitterZeroInitial() {
+        Backoff jitterBackoff = Backoff.exponentialWithJitter(Duration.ZERO, 2.0);
+        // range [0, 0]. Must always be 0.
+        assertEquals(0, jitterBackoff.nextDelay(5).toMillis());
+    }
 }

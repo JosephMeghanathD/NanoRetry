@@ -78,6 +78,27 @@ public interface Backoff {
     }
 
     /**
+     * Creates an exponential backoff with "Full Jitter".
+     * <p>
+     * Instead of a fixed exponential delay, this picks a random value between
+     * 0 and the calculated exponential delay. This is highly effective at
+     * preventing "retry storms" in distributed systems.
+     * </p>
+     *
+     * @param initialDelay The base delay for the first retry.
+     * @param multiplier   The exponential growth factor.
+     * @return A jittered exponential {@link Backoff} strategy.
+     */
+    static Backoff exponentialWithJitter(final Duration initialDelay, final double multiplier) {
+        return attempt -> {
+            long expDelay = (long) (initialDelay.toMillis() * Math.pow(multiplier, attempt - 1));
+            // Pick a random value between 0 and the current exponential cap
+            long jitteredDelay = ThreadLocalRandom.current().nextLong(0, expDelay + 1);
+            return Duration.ofMillis(jitteredDelay);
+        };
+    }
+
+    /**
      * Calculates the duration to wait before the next retry attempt.
      *
      * @param attempt The current attempt number (1-based index).
